@@ -74,9 +74,9 @@ export default function Header({ profileRef, whyRef, contactRef }) {
             </li>
             <li>
               <Link
-                href={""}
+                href={"/auth/login"}
                 className={`font-bold text-2xl text-white`}
-                as="a"
+                prefetch={true}
               >
                 Login
               </Link>
