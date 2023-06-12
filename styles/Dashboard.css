@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow&display=swap");
+
+.aside,
+main {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.aside {
+  width: 345px;
+  min-height: 100vh;
+  background-color: white;
+}
+
+.main {
+  width: calc(100vw - 345px);
+  min-height: 100vh;
+  background-color: #f3f2f7;
+  left: 345px;
+}
+
+.total-notif {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Barlow", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  width: 22px;
+  height: 22px;
+}
