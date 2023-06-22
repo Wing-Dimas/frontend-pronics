@@ -4,11 +4,6 @@ import Dashboard from "@/components/Dashboard";
 import "@/styles/globals.css";
 import { usePathname } from "next/navigation";
 
-export const metadata = {
-  title: "Admin",
-  description: "Pronic menyediakan segala hal",
-};
-
 const pages = [
   {
     name: "Home",

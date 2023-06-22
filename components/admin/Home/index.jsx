@@ -1,3 +1,4 @@
+"use client";
 import CardDashboard from "@/components/CardDashboard";
 import useNavigate from "@/utils/dashboard/useNavigate";
 import React from "react";
