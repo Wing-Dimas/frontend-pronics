@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "~@flaticon/flaticon-uicons/css/all/all";
 
 @layer components {
   .container {

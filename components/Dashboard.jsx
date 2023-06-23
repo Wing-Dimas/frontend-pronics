@@ -10,7 +10,7 @@ import { IconBell, IconSettings } from "@tabler/icons-react";
 import { IconMessage2 } from "@tabler/icons-react";
 
 const Dashboard = ({ children }) => {
-  return <div className="">{children}</div>;
+  return <>{children}</>;
 };
 
 Dashboard.Navbar = ({ children }) => {
