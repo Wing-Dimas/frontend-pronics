@@ -2,6 +2,8 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { IconBrandFacebook, IconMail } from "@tabler/icons-react";
+import { IconBrandTwitterFilled } from "@tabler/icons-react";
 
 export default function Footer() {
   return (
@@ -21,19 +23,19 @@ export default function Footer() {
             href=""
             className="flex justify-center items-center bg-secondary rounded-full w-11 h-11"
           >
-            <i className="fi fi-brands-facebook text-white text-2xl mt-2"></i>
+            <IconBrandFacebook className="text-white text-2xl " />
           </Link>
           <Link
             href=""
             className="flex justify-center items-center bg-secondary rounded-full w-11 h-11"
           >
-            <i className="fi fi-brands-twitter text-white text-2xl mt-2"></i>
+            <IconBrandTwitterFilled className="text-white text-2xl" />
           </Link>
           <Link
             href=""
             className="flex justify-center items-center bg-secondary rounded-full w-11 h-11"
           >
-            <i className="fi fi-rr-envelope text-white text-2xl mt-2"></i>
+            <IconMail className="text-white text-2xl" />
           </Link>
         </div>
       </div>

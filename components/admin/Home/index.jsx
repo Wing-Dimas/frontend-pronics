@@ -5,6 +5,8 @@ import React from "react";
 import Customer from "./Customer";
 import Mitra from "./Mitra";
 import Transaksi from "./Transaksi";
+import { IconFileDollar, IconUsersGroup } from "@tabler/icons-react";
+import { IconBuildingStore } from "@tabler/icons-react";
 
 const pages = [
   { name: "Customer", element: <Customer /> },
@@ -27,19 +29,19 @@ export default function Home() {
 
       <div className="flex gap-6 flex-wrap mt-8">
         <CardDashboard
-          icon={<i className="fi fi-rr-users-alt"></i>}
+          icon={<IconUsersGroup />}
           title="1200"
           content="Total Customer"
           className="flex-1"
         />
         <CardDashboard
-          icon={<i className="fi fi-rr-store-alt"></i>}
+          icon={<IconBuildingStore />}
           title="130"
           content="Total Mitra"
           className="flex-1"
         />
         <CardDashboard
-          icon={<i className="fi fi-rs-file-invoice-dollar"></i>}
+          icon={<IconFileDollar />}
           title="3000"
           content="Total Transaksi"
           className="flex-1"

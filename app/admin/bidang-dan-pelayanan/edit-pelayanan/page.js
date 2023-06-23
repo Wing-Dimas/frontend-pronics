@@ -1,5 +1,6 @@
 "use client";
 import Buttons from "@/components/Buttons";
+import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -19,9 +20,9 @@ export default function EditPelayanan() {
       <div className="flex gap-10 h-max">
         <button
           onClick={() => router.back()}
-          className="flex justify-center items-center text-3xl pt-2 w-8 h-8 hover:bg-slate-200 duration-1w-80 rounded-full"
+          className="flex justify-center items-center text-3xl w-8 h-8 hover:bg-slate-200 duration-1w-80 rounded-full"
         >
-          <i className="fi fi-rr-arrow-small-left"></i>
+          <IconArrowLeft />
         </button>
         <h1 className="text-2xl font-medium">Edit Layanan</h1>
       </div>

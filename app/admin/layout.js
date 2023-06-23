@@ -2,28 +2,32 @@
 
 import Dashboard from "@/components/Dashboard";
 import "@/styles/globals.css";
+import { IconCoin } from "@tabler/icons-react";
+import { IconWallet } from "@tabler/icons-react";
+import { IconAlignRight } from "@tabler/icons-react";
+import { IconHome } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 
 const pages = [
   {
     name: "Home",
     pathname: "/admin",
-    icon: <i className="fi fi-rr-home"></i>,
+    icon: <IconHome />,
   },
   {
     name: "Bidang dan Pelayanan",
     pathname: "/admin/bidang-dan-pelayanan",
-    icon: <i className="fi fi-rr-symbol"></i>,
+    icon: <IconAlignRight />,
   },
   {
     name: "Bank",
     pathname: "/admin/bank",
-    icon: <i className="fi fi-rr-wallet"></i>,
+    icon: <IconWallet />,
   },
   {
     name: "Pembayaran",
     pathname: "/admin/pembayaran",
-    icon: <i className="fi fi-rr-usd-circle"></i>,
+    icon: <IconCoin />,
   },
 ];
 

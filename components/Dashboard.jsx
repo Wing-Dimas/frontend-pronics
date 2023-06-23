@@ -6,6 +6,8 @@ import "@/styles/Dashboard.css";
 import Image from "next/image";
 
 import userNoImage from "@/assets/user-no-image.png";
+import { IconBell, IconSettings } from "@tabler/icons-react";
+import { IconMessage2 } from "@tabler/icons-react";
 
 const Dashboard = ({ children }) => {
   return <div className="">{children}</div>;
@@ -72,24 +74,24 @@ Dashboard.HeaderFeature = ({ children }) => {
   return (
     <div className="flex gap-8 border-r border-r-slate-200 pr-8">
       <div className="relative">
-        <button className="flex justify-center items-center w-12 h-12 rounded-lg bg-blueTransparant text-secondary pt-2 text-xl">
-          <i className="fi fi-rr-bell"></i>
+        <button className="flex justify-center items-center w-12 h-12 rounded-lg bg-blueTransparant text-secondary text-xl">
+          <IconBell />
         </button>
         <span className="total-notif absolute -top-2 -right-2 rounded-full bg-secondary border-2 border-white text-white">
           21
         </span>
       </div>
       <div className="relative">
-        <button className="flex justify-center items-center w-12 h-12 rounded-lg bg-blueTransparant text-secondary pt-2 text-xl">
-          <i className="fi fi-rr-comment-alt-dots"></i>
+        <button className="flex justify-center items-center w-12 h-12 rounded-lg bg-blueTransparant text-secondary text-xl">
+          <IconMessage2 />
         </button>
         <span className="total-notif absolute -top-2 -right-2 rounded-full bg-secondary border-2 border-white text-white">
           53
         </span>
       </div>
       <div className="relative">
-        <button className="flex justify-center items-center w-12 h-12 rounded-lg bg-redTransparant text-red pt-2 text-xl">
-          <i className="fi fi-rr-settings"></i>
+        <button className="flex justify-center items-center w-12 h-12 rounded-lg bg-redTransparant text-red text-xl">
+          <IconSettings />
         </button>
         <span className="total-notif absolute -top-2 -right-2 rounded-full bg-red border-2 border-white text-white">
           19
