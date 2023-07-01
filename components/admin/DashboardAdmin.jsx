@@ -7,9 +7,10 @@ import Home from "./Home";
 import BidangDanPelayanan from "./BidangDanPelayanan";
 import Bank from "./Bank";
 import Pembayaran from "./Pembayaran";
+import { IconUsersGroup } from "@tabler/icons-react";
 
 const pages = [
-  { name: "Home", element: <Home />, icon: <i className="fi fi-rr-home"></i> },
+  { name: "Home", element: <Home />, icon: <IconUsersGroup /> },
   {
     name: "Bidang dan Pelayanan",
     element: <BidangDanPelayanan />,

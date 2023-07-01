@@ -10,7 +10,7 @@ import { IconBell, IconSettings } from "@tabler/icons-react";
 import { IconMessage2 } from "@tabler/icons-react";
 
 const Dashboard = ({ children }) => {
-  return <div className="">{children}</div>;
+  return <>{children}</>;
 };
 
 Dashboard.Navbar = ({ children }) => {
@@ -43,9 +43,11 @@ Dashboard.Navlink = ({ children, active, href }) => {
   );
 };
 
-Dashboard.Header = ({ children }) => {
+Dashboard.Header = ({ children, className }) => {
   return (
-    <header className="flex justify-end items-center p-8 gap-8 h-28">
+    <header
+      className={`flex justify-end items-center p-8 gap-8 h-28 ${className}`}
+    >
       {children}
     </header>
   );
