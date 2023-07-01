@@ -55,7 +55,7 @@ const DEFAULT_JENIS = ["Televisi", "AC", "Handphone"];
 
 const DEFAULT_URUT = ["Terdekat", "Termurah"];
 
-export default function Home() {
+export default function Saved() {
   const [search, setSearch] = useState("");
   const [daerah, setDaerah] = useState("");
   const [jenis, setJenis] = useState("");

@@ -1,5 +1,14 @@
-import React from "react";
+import Saved from "@/components/customer/Saved";
 
-export default function Saved() {
-  return <div>Saved</div>;
+export const metadata = {
+  title: "Customer | Saved",
+  description: "Pronic menyediakan segala hal",
+};
+
+export default function SavedPage() {
+  return (
+    <div>
+      <Saved />
+    </div>
+  );
 }

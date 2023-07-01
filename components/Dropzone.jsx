@@ -5,7 +5,7 @@ import Image from "next/image";
 
 import noImage from "@/assets/no-image.svg";
 
-export default function Dropzone() {
+export default function Dropzone({ children = <>Upload e-KTP</> }) {
   const [image, setImage] = useState([]);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -67,7 +67,7 @@ export default function Dropzone() {
           )}
         </div>
         <ButtonSecondary type="button" className="max-w-max">
-          Upload e-KTP
+          {children}
         </ButtonSecondary>
       </div>
     </div>

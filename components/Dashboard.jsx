@@ -43,9 +43,11 @@ Dashboard.Navlink = ({ children, active, href }) => {
   );
 };
 
-Dashboard.Header = ({ children }) => {
+Dashboard.Header = ({ children, className }) => {
   return (
-    <header className="flex justify-end items-center p-8 gap-8 h-28">
+    <header
+      className={`flex justify-end items-center p-8 gap-8 h-28 ${className}`}
+    >
       {children}
     </header>
   );

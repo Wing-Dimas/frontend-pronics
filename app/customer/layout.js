@@ -33,8 +33,35 @@ const pages = [
   },
 ];
 
+const pathOnlyHeader = [
+  "/customer/detail-toko",
+  "/customer/order",
+  "/customer/pembayaran/success",
+  "/customer/history/komentar",
+];
+
 export default function RootLayout({ children }) {
   const pathname = usePathname();
+
+  const isOnlyHeader = pathOnlyHeader.some((path) => path === pathname);
+
+  if (isOnlyHeader) {
+    return (
+      <html lang="en">
+        <body className="overflow-x-hidden bg-[#F3F2F7]">
+          <Dashboard>
+            <Dashboard.Header className="shadow-lg bg-white">
+              <Dashboard.HeaderFeature />
+              <Dashboard.User />
+            </Dashboard.Header>
+
+            {children}
+          </Dashboard>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="en">
       <body className="overflow-x-hidden">
