@@ -5,6 +5,7 @@ const color = {
   red: "bg-red",
   purple: "bg-purple",
   blue: "bg-secondary",
+  green: "bg-emerald-400",
 };
 
 export default function Buttons({
