@@ -6,6 +6,7 @@ import InputTextarea from "@/components/InputTextarea";
 export default function ProfileForm({
   type,
   nama,
+  nama_toko,
   handphone,
   deskripsiDiri,
   email,
@@ -94,8 +95,37 @@ export default function ProfileForm({
             onChange={(e) => updateFields({ deskripsiDiri: e.target.value })}
             className="min-w-[180px] flex-1"
           ></InputTextarea>
+
+          <label
+            htmlFor="alamat"
+            className="flex items-start text-text text-xl font-medium whitespace-nowrap"
+          >
+            Alamat
+          </label>
+          <InputTextarea
+            id="alamat"
+            value={alamat}
+            onChange={(e) => updateFields({ alamat: e.target.value })}
+            className="min-w-[180px] flex-1"
+            required={true}
+          ></InputTextarea>
         </div>
         <div className="grid grid-rows-[repeat(4,_auto)_1fr] lg:grid-cols-[1fr_2fr] grid-cols-1 gap-5">
+          <label
+            htmlFor="nama-toko"
+            className="flex items-center text-text text-xl font-medium whitespace-nowrap"
+          >
+            Nama Toko
+          </label>
+          <InputText
+            type="text"
+            id="nama-toko"
+            value={nama_toko}
+            onChange={(e) => updateFields({ nama_toko: e.target.value })}
+            className="min-w-[180px] max-h-12 flex-1"
+            required={true}
+          />
+
           <label
             htmlFor="email"
             className="flex items-center text-text text-xl font-medium whitespace-nowrap"
@@ -126,19 +156,7 @@ export default function ProfileForm({
             required={true}
           />
 
-          <label
-            htmlFor="alamat"
-            className="flex items-start text-text text-xl font-medium whitespace-nowrap"
-          >
-            Alamat
-          </label>
-          <InputTextarea
-            id="alamat"
-            value={alamat}
-            onChange={(e) => updateFields({ alamat: e.target.value })}
-            className="min-w-[180px] flex-1"
-            required={true}
-          ></InputTextarea>
+          <div className="h-28"></div>
         </div>
       </div>
     </>

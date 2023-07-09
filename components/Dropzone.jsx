@@ -5,10 +5,14 @@ import Image from "next/image";
 
 import noImage from "@/assets/no-image.svg";
 
-export default function Dropzone({ children = <>Upload e-KTP</> }) {
+export default function Dropzone({
+  handleImage,
+  children = <>Upload e-KTP</>,
+}) {
   const [image, setImage] = useState([]);
 
   const onDrop = useCallback((acceptedFiles) => {
+    handleImage(acceptedFiles[0]);
     setImage(
       acceptedFiles.map((upFile) =>
         Object.assign(upFile, { preview: URL.createObjectURL(upFile) })
@@ -28,8 +32,6 @@ export default function Dropzone({ children = <>Upload e-KTP</> }) {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => image.forEach((file) => URL.revokeObjectURL(file.preview));
   }, []);
-
-  //   console.log(image);
 
   return (
     <div {...getRootProps()}>

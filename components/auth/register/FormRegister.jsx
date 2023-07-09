@@ -4,13 +4,60 @@ import React, { useState } from "react";
 import illustrasi from "@/assets/illustration-characters-fixing-cogwheel_53876-40796 1.png";
 import logo_google from "@/assets/logo_google.png";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
+
+const MySwal = withReactContent(Swal);
 
 export default function FormRegister() {
   const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const route = useRouter();
   const [isShowPassword, setIsShowPassword] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const credentials = {
+      nama_lengkap: nama,
+      email: email,
+      password: password,
+      type: "customer",
+    };
+
+    await fetch("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.meta.code === 200) {
+          MySwal.fire({
+            title: res.meta.message,
+            icon: "success",
+            confirmButtonText: "Ok",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              return route.push("auth/login");
+            }
+          });
+        } else {
+          MySwal.fire({
+            title: res.meta.message,
+            text: res.data,
+            icon: "error",
+            confirmButtonText: "Ok",
+          });
+        }
+      });
+    setEmail("");
+  };
 
   return (
     <>
@@ -21,8 +68,8 @@ export default function FormRegister() {
         <span>Daftar Sebagai Mitra</span>
       </Link>
 
-      <div className="flex justify-between">
-        <div>
+      <div className="flex justify-center lg:justify-between">
+        <div className="hidden lg:block">
           <Image
             src={illustrasi}
             width={485}
@@ -43,7 +90,7 @@ export default function FormRegister() {
 
         <div className="shadow-2xl rounded-lg flex-1 max-w-lg p-8 mt-8">
           <h1 className="text-center text-4xl font-bold">Daftar Sekarang</h1>
-          <form onSubmit={() => {}} className="mt-8">
+          <form onSubmit={handleSubmit} className="mt-8">
             <div className="flex flex-col gap-4">
               <label htmlFor="nama" className="text-text text-2xl font-medium">
                 Nama

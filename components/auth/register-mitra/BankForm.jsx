@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import InputText from "@/components/InputText";
 import Select from "@/components/Select";
 import Dropzone from "@/components/Dropzone";
@@ -9,17 +9,20 @@ export default function BankForm({
   nasabah,
   bank,
   norek,
-  picture,
+  e_ktp,
   updateFields,
+  dataBank,
 }) {
-  console.log(bank);
+  const handleImage = (image) => {
+    updateFields({ e_ktp: image });
+  };
   return (
     <>
       <p className="text-text text-2xl font-medium my-8">
         Informasi rekening dan validasi identitas
       </p>
 
-      <div className="grid grid-rows-[repeat(4,_auto)_1fr] lg:grid-cols-[1fr_2fr] grid-cols-1 gap-5 max-w-full lg:max-w-[50%]">
+      <div className="grid grid-rows-[repeat(4,_auto)_1fr] lg:grid-cols-[1fr_2fr] grid-cols-1 gap-5 max-w-full lg:max-w-[50%] mb-8">
         <label
           htmlFor="nama"
           className="flex items-center text-text text-xl font-medium whitespace-nowrap"
@@ -43,12 +46,12 @@ export default function BankForm({
         <Select
           id="bank"
           className="min-w-[180px] max-h-12 flex-1"
-          onChange={(e) => updateFields(e.target.value)}
+          onChange={(e) => updateFields({ bank: e.target.value })}
         >
           <option value="">-- pilih bank --</option>
-          {DEFAULT_BANK.map((item, i) => (
-            <option value={item} selected={item == bank}>
-              {item}
+          {dataBank.data.map((item) => (
+            <option value={item.id} selected={item.id == bank} key={item.id}>
+              {item.nama_bank}
             </option>
           ))}
         </Select>
@@ -68,7 +71,7 @@ export default function BankForm({
         />
       </div>
 
-      <Dropzone />
+      <Dropzone handleImage={handleImage}>Upload e-KTP</Dropzone>
       <p className="text-text text-xl font-medium w-1/2 mt-8">
         *Admin akan memverifikasi akun anda, jika informasi yang anda berikan
         valid maka akun anda akan segera aktif.

@@ -1,14 +1,17 @@
 "use client";
 
 import Dashboard from "@/components/Dashboard";
+import Loader from "@/components/Loader";
 import "@/styles/globals.css";
+import { session } from "@/utils/userAuth";
 import {
   IconCoin,
   IconWallet,
   IconAlignRight,
   IconHome,
 } from "@tabler/icons-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const pages = [
   {
@@ -42,8 +45,27 @@ const pathOnlyHeader = [
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
+  const route = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   const isOnlyHeader = pathOnlyHeader.some((path) => path === pathname);
+
+  useEffect(() => {
+    const isAuth = async () => {
+      const data = await session();
+
+      if (!data?.user?.tipe === "customer" || !data?.token) {
+        return route.push("/auth/login");
+      }
+
+      setIsLoading(false);
+    };
+    isAuth();
+  }, []);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   if (isOnlyHeader) {
     return (

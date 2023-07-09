@@ -1,8 +1,8 @@
 "use client";
 import CardDashboard from "@/components/CardDashboard";
-import React from "react";
 import { IconFileDollar, IconPackage } from "@tabler/icons-react";
 import { toRupiah } from "@/utils/convert";
+import React from "react";
 
 export default function Home() {
   return (

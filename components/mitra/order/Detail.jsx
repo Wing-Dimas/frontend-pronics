@@ -54,7 +54,7 @@ export default function DetailOrder() {
         <div className="flex gap-3">
           <button
             className="flex justify-center items-center w-12 h-12 rounded-lg bg-blueTransparant text-secondary text-xl"
-            onClick={() => route.push("/mitra/order/detail")}
+            onClick={() => route.push("/mitra/order/alamat")}
           >
             <IconLocation />
           </button>

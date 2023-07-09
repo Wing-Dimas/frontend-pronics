@@ -4,16 +4,45 @@ import React, { useState } from "react";
 import illustrasi from "@/assets/illustration-characters-fixing-cogwheel_53876-40796 1.png";
 import logo_google from "@/assets/logo_google.png";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function FormLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const route = useRouter();
 
   const [isShowPassword, setIsShowPassword] = useState(false);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await res.json();
+
+    if (result.data?.user) {
+      const user = result.data.user;
+      const tipe = user.tipe;
+
+      if (tipe === "mitra") {
+        route.push("/mitra");
+      } else if (tipe === "admin") {
+        route.push("/admin");
+      } else {
+        route.push("/customer");
+      }
+    }
+  };
+
   return (
-    <div className="flex justify-between">
-      <div>
+    <div className="flex justify-center lg:justify-between">
+      <div className="hidden lg:block">
         <Image
           src={illustrasi}
           width={485}
@@ -34,7 +63,7 @@ export default function FormLogin() {
 
       <div className="shadow-2xl rounded-lg flex-1 max-w-lg p-8 mt-8">
         <h1 className="text-center text-4xl font-bold">Login</h1>
-        <form onSubmit={() => {}} className="mt-8">
+        <form onSubmit={handleSubmit} className="mt-8">
           <div className="flex flex-col gap-4">
             <label htmlFor="email" className="text-text text-2xl font-medium">
               Email atau Username
@@ -103,8 +132,8 @@ export default function FormLogin() {
         </div>
 
         <Link
-          href={""}
-          className="flex justify-center items-center gap-3 border border-secondary rounded-lg text-secondary font-bold py-2 mt-4"
+          href={`${process.env.NEXT_PUBLIC_BACKEND}/api/v1/auth/user/login/google`}
+          className="flex justify-center items-center gap-3 border border-secondary rounded-lg text-secondary font-bold py-2 mt-4 w-full"
         >
           <Image src={logo_google} width={35} height={35} alt="logo_google" />
           <span>Masuk dengan Google</span>

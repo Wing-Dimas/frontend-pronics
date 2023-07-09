@@ -1,14 +1,17 @@
 "use client";
 
 import Dashboard from "@/components/Dashboard";
+import Loader from "@/components/Loader";
 import "@/styles/globals.css";
+import { session } from "@/utils/userAuth";
 import {
   IconCoin,
   IconWallet,
   IconHome,
   IconPackage,
 } from "@tabler/icons-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const pages = [
   {
@@ -37,8 +40,27 @@ const pathNoLayout = ["/mitra/history/invoice"];
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
+  const route = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const isAuth = async () => {
+      const data = await session();
+
+      if (!data?.user?.tipe === "mitra" || !data?.token) {
+        return route.push("/auth/login");
+      }
+
+      setIsLoading(false);
+    };
+    isAuth();
+  }, []);
 
   const isNoLayout = pathNoLayout.some((path) => path === pathname);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   if (isNoLayout) {
     return (
