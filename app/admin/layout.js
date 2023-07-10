@@ -34,30 +34,28 @@ const pages = [
 export default function RootLayout({ children }) {
   const pathname = usePathname();
   return (
-    <html lang="en">
-      <body className="overflow-x-hidden">
-        <Dashboard>
-          <Dashboard.Navbar>
-            {pages.map((item, i) => (
-              <Dashboard.Navlink
-                href={item.pathname}
-                active={pathname === item.pathname}
-                key={i}
-              >
-                {item.icon} {item.name}
-              </Dashboard.Navlink>
-            ))}
-          </Dashboard.Navbar>
-          <Dashboard.Main>
-            <Dashboard.Header>
-              <Dashboard.HeaderFeature />
-              <Dashboard.User />
-            </Dashboard.Header>
+    <div className="overflow-x-hidden">
+      <Dashboard>
+        <Dashboard.Navbar>
+          {pages.map((item, i) => (
+            <Dashboard.Navlink
+              href={item.pathname}
+              active={pathname === item.pathname}
+              key={i}
+            >
+              {item.icon} {item.name}
+            </Dashboard.Navlink>
+          ))}
+        </Dashboard.Navbar>
+        <Dashboard.Main>
+          <Dashboard.Header>
+            <Dashboard.HeaderFeature />
+            <Dashboard.User />
+          </Dashboard.Header>
 
-            {children}
-          </Dashboard.Main>
-        </Dashboard>
-      </body>
-    </html>
+          {children}
+        </Dashboard.Main>
+      </Dashboard>
+    </div>
   );
 }

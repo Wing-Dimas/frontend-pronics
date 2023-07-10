@@ -69,46 +69,42 @@ export default function RootLayout({ children }) {
 
   if (isOnlyHeader) {
     return (
-      <html lang="en">
-        <body className="overflow-x-hidden bg-[#F3F2F7]">
-          <Dashboard>
-            <Dashboard.Header className="shadow-lg bg-white">
-              <Dashboard.HeaderFeature />
-              <Dashboard.User />
-            </Dashboard.Header>
+      <div className="overflow-x-hidden bg-[#F3F2F7]">
+        <Dashboard>
+          <Dashboard.Header className="shadow-lg bg-white">
+            <Dashboard.HeaderFeature />
+            <Dashboard.User />
+          </Dashboard.Header>
 
-            {children}
-          </Dashboard>
-        </body>
-      </html>
+          {children}
+        </Dashboard>
+      </div>
     );
   }
 
   return (
-    <html lang="en">
-      <body className="overflow-x-hidden">
-        <Dashboard>
-          <Dashboard.Navbar>
-            {pages.map((item, i) => (
-              <Dashboard.Navlink
-                href={item.pathname}
-                active={pathname === item.pathname}
-                key={i}
-              >
-                {item.icon} {item.name}
-              </Dashboard.Navlink>
-            ))}
-          </Dashboard.Navbar>
-          <Dashboard.Main>
-            <Dashboard.Header>
-              <Dashboard.HeaderFeature />
-              <Dashboard.User />
-            </Dashboard.Header>
+    <div className="overflow-x-hidden">
+      <Dashboard>
+        <Dashboard.Navbar>
+          {pages.map((item, i) => (
+            <Dashboard.Navlink
+              href={item.pathname}
+              active={pathname === item.pathname}
+              key={i}
+            >
+              {item.icon} {item.name}
+            </Dashboard.Navlink>
+          ))}
+        </Dashboard.Navbar>
+        <Dashboard.Main>
+          <Dashboard.Header>
+            <Dashboard.HeaderFeature />
+            <Dashboard.User />
+          </Dashboard.Header>
 
-            {children}
-          </Dashboard.Main>
-        </Dashboard>
-      </body>
-    </html>
+          {children}
+        </Dashboard.Main>
+      </Dashboard>
+    </div>
   );
 }

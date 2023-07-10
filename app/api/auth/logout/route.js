@@ -1,20 +1,24 @@
-import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export const POST = async (req, res) => {
   try {
-    res.setHeader("Set-Cookie", [
-      serialize("token", "", {
-        maxAge: -1,
-        path: "/",
-      }),
-      serialize("user", "", {
-        maxAge: -1,
-        path: "/",
-      }),
-    ]);
+    cookies().set({
+      name: "token",
+      value: "",
+      maxAge: 0,
+      path: "/",
+    });
+    cookies().set({
+      name: "user",
+      value: "",
+      maxAge: 0,
+      path: "/",
+    });
 
-    return res;
-    // return new Response("Success to logout", { status: 200 });
+    return new Response("Suscces", {
+      status: 200,
+      headers: { "Set-Cookie": "token=;user=;Max-Age=0" },
+    });
   } catch (error) {
     return new Response("Failed to logout", { status: 500 });
   }
