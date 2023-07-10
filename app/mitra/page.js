@@ -6,10 +6,6 @@ export const metadata = {
   description: "Pronic menyediakan segala hal",
 };
 
-export default function MitraPage() {
-  return (
-    <>
-      <Home />
-    </>
-  );
+export default async function MitraPage() {
+  return <Home />;
 }

@@ -1,12 +1,38 @@
 "use client";
 import ButtonSecondary from "@/components/ButtonSecondary";
+import { toRupiah } from "@/utils/convert";
+import { session } from "@/utils/userAuth";
 import { IconArrowLeft } from "@tabler/icons-react";
+import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-export default function Detail() {
+export default function Detail({ id }) {
   const route = useRouter();
+  const [data, setData] = useState();
+
+  useEffect(() => {
+    const getDetail = async () => {
+      const { token } = await session();
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/order/detail/${id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const { data } = await res.json();
+
+      setData(data);
+    };
+
+    getDetail();
+  }, []);
+
   return (
     <div className="rounded-lg p-2 min-h-[calc(100vh_-_200px)] ">
       <div className="flex justify-between">
@@ -21,64 +47,78 @@ export default function Detail() {
         </div>
         <div className="flex gap-3">
           <ButtonSecondary
-            onClick={() => route.push("/mitra/history/komentar")}
+            onClick={() => route.push(`/mitra/history/${id}/komentar`)}
           >
             Lihat Kometar
           </ButtonSecondary>
-          <ButtonSecondary onClick={() => route.push("/mitra/history/invoice")}>
+          <ButtonSecondary
+            onClick={() => route.push(`/mitra/history/${id}/invoice`)}
+          >
             Cetak Invoice
           </ButtonSecondary>
         </div>
       </div>
-
       <div className="mx-16 mt-12">
         {/* SELESAI */}
         <h2 className="font-bold">Pesanan Masuk</h2>
-        <p className="text-text">ID Transaksi #ge784djOd_sdf343f</p>
-        <p className="text-text">Tanggal Transaksi 29 Mei 2023, 16:22 WIB</p>
-
+        <p className="text-text">ID Transaksi {data?.transaksi_id}</p>
+        <p className="text-text">
+          Tanggal Transaksi{" "}
+          {moment(data?.tanggal_order).locale("id").format("LLLL")}
+        </p>
         {/* DETAIL ORDER */}
         <h2 className="font-bold mt-8">Detail Order</h2>
-        <p className="text-text">Jenis Layanan : Layanan 1</p>
-        <p className="text-text">Merk : Merk 1</p>
         <p className="text-text">
-          Jenis Perbaikan / Pelayanan : Pelayanan yang dipilih
+          Jenis Layanan : {data?.order_detail.bidang.nama_bidang}
+        </p>
+        <p className="text-text">Merk : {data?.order_detail.merk}</p>
+        <p className="text-text">
+          Jenis Perbaikan / Pelayanan :{" "}
+          {data?.order_detail.layanan.nama_layanan}
         </p>
         <p className="text-text">Deskripsi Kerusakan :</p>
-        <p className="text-text">AC Rusak</p>
-
-        {/* LOKASI TUKANG */}
-        <h2 className="font-bold mt-8">Lokasi Tukang</h2>
-        <p className="text-text">
-          Jl. Delima, Tanjung Barat, Jagakarsa, Jaksel 12560.
-        </p>
-
+        <p className="text-text">{data?.order_detail.deskripsi_kerusakan}</p>
+        {/* LOKASI MITRA */}
+        <h2 className="font-bold mt-8">Lokasi Mitra</h2>
+        <p className="text-text">{data?.order_detail.alamat_pesanan}</p>
         {/* AKUMULASI BIAYA */}
         <h2 className="font-bold mt-8">AKumulasi Biaya</h2>
         <p className="flex justify-between w-96">
           <span className="font-bold">Metode Pembayaran</span>
-          <span className="text-text">BRIVA</span>
+          <span className="text-text">
+            {data?.order_detail.order_payment.metode_pembayaran}
+          </span>
         </p>
         <p className="flex justify-between w-96">
           <span className="font-bold">Pelayanan yang dipillih</span>
-          <span className="text-text">RP. 50.000</span>
+          <span className="text-text">
+            {toRupiah(data?.order_detail.order_payment.biaya_pelayanan || 0)}
+          </span>
         </p>
         <p className="flex justify-between w-96">
-          <span className="font-bold">Biaya Perjalanan (4,2 km)</span>
-          <span className="text-text">RP. 8.500</span>
+          <span className="font-bold">Biaya Perjalanan</span>
+          <span className="text-text">
+            {toRupiah(data?.order_detail.order_payment.biaya_perjalanan || 0)}
+          </span>
         </p>
         <p className="flex justify-between w-96">
           <span className="font-bold">Discount</span>
-          <span className="text-text">Rp. 0</span>
+          <span className="text-text">
+            {toRupiah(data?.order_detail.order_payment.diskon || 0)}
+          </span>
         </p>
         <p className="flex justify-between w-96">
           <span className="font-bold">Biaya Aplikasi</span>
-          <span className="text-text">Rp. 2.000</span>
+          <span className="text-text">
+            {toRupiah(data?.order_detail.order_payment.biaya_aplikasi || 0)}
+          </span>
         </p>
         {/* TOTAL */}
         <p className="flex justify-between w-96">
           <span className="font-bold">TOTAL</span>
-          <span className="text-text">Rp. 60.500</span>
+          <span className="text-text">
+            {toRupiah(data?.order_detail.order_payment.total_biaya || 0)}
+          </span>
         </p>
       </div>
     </div>

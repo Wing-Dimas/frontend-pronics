@@ -30,3 +30,13 @@ main {
   width: 22px;
   height: 22px;
 }
+
+.user-wrapper .user-menu {
+  display: none;
+  transition: all 1s;
+}
+.user-wrapper .user-info:hover + .user-menu,
+.user-wrapper .user-menu:hover {
+  transition-duration: 2s;
+  display: block;
+}

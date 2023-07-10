@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import "@/styles/Dashboard.css";
 import Image from "next/image";
@@ -8,6 +8,9 @@ import Image from "next/image";
 import userNoImage from "@/assets/user-no-image.png";
 import { IconBell, IconSettings } from "@tabler/icons-react";
 import { IconMessage2 } from "@tabler/icons-react";
+import { session } from "@/utils/userAuth";
+import { IconLogout2 } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 const Dashboard = ({ children }) => {
   return <>{children}</>;
@@ -54,19 +57,49 @@ Dashboard.Header = ({ children, className }) => {
 };
 
 Dashboard.User = ({ children }) => {
+  const route = useRouter();
+  const [user, setUser] = useState("");
+  useEffect(() => {
+    const getUser = async () => {
+      const { user } = await session();
+      setUser(user.nama_lengkap);
+    };
+
+    getUser();
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch(`/api/auth/logout`, {
+      method: "POST",
+    });
+
+    return route.push("/auth/login");
+  };
+
   return (
-    <div className="flex justify-center items-center gap-4">
-      <p className="text-sm">
-        Hello, <span className="font-medium">Rebecca</span>
-      </p>
-      <div className="rounded-full overflow-hidden w-11 h-w-11">
-        <Image
-          src={userNoImage}
-          width="auto"
-          height="auto"
-          alt="user-image"
-          className="object-cover"
-        />
+    <div className="user-wrapper relative">
+      <div className="user-info flex justify-center items-center gap-4 cursor-pointer">
+        <p className="text-sm">
+          Hello, <span className="font-medium">{user}</span>
+        </p>
+        <div className="rounded-full overflow-hidden w-11 h-w-11">
+          <Image
+            src={userNoImage}
+            width="auto"
+            height="auto"
+            alt="user-image"
+            className="object-cover"
+          />
+        </div>
+      </div>
+      <div className="user-menu absolute hidden left-0 right-0 top-10 ">
+        <ul className="bg-white rounded-xl p-1">
+          <li className="p-1 bg-white rounded-xl transition-all duration-500 hover:bg-red hover:text-white">
+            <button className="flex gap-3 w-full" onClick={handleLogout}>
+              <IconLogout2 /> Logout
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   );
