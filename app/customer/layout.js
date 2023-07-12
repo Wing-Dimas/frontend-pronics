@@ -39,6 +39,9 @@ const pages = [
 const pathOnlyHeader = [
   "/customer/detail-toko",
   "/customer/order",
+  "/customer/settings",
+  "/customer/settings/profile",
+  "/customer/settings/tambah-alamat",
   "/customer/pembayaran/success",
   "/customer/history/komentar",
 ];

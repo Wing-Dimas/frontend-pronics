@@ -1,70 +1,101 @@
 "use client";
 import { toRupiah } from "@/utils/convert";
 import GenerateStar from "@/utils/generate-star";
+import { session } from "@/utils/userAuth";
 import { Listbox } from "@headlessui/react";
-import { IconStarFilled, IconStarHalfFilled } from "@tabler/icons-react";
 import { IconBookmark } from "@tabler/icons-react";
-import { IconStar } from "@tabler/icons-react";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-const DEFAULT_CATALOG = [
-  {
-    id: 1,
-    name: "Pasryanto Service",
-    image: "/assets/img/image-service.jpg",
-    harga_min: 50000,
-    harga_max: 110000,
-    bidang: ["kelistrikan", "AC", "Televisi"],
-    rating: 5,
-  },
-  {
-    id: 2,
-    name: "Pasryanto Service",
-    image: "/assets/img/image-service.jpg",
-    harga_min: 50000,
-    harga_max: 110000,
-    bidang: ["kelistrikan", "AC", "Televisi"],
-    rating: 4.7,
-  },
-  {
-    id: 3,
-    name: "Pasryanto Service",
-    image: "/assets/img/image-service.jpg",
-    harga_min: 50000,
-    harga_max: 110000,
-    bidang: ["kelistrikan", "AC", "Televisi"],
-    rating: 3.5,
-  },
-  {
-    id: 4,
-    name: "Pasryanto Service",
-    image: "/assets/img/image-service.jpg",
-    harga_min: 50000,
-    harga_max: 110000,
-    bidang: ["kelistrikan", "AC", "Televisi"],
-    rating: 1,
-  },
-];
+const MySwal = withReactContent(Swal);
 
-const DEFAULT_DAERAH = ["Jabodetabek", "Surabaya", "Bandung"];
+const DEFAULT_URUT = ["terdekat", "termurah", "rating", "tertinggi"];
 
-const DEFAULT_JENIS = ["Televisi", "AC", "Handphone"];
+const getAlamat = async () => {
+  const { token } = await session();
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/customer/profile`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
-const DEFAULT_URUT = ["Terdekat", "Termurah"];
+  const {
+    data: { alamat },
+  } = await res.json();
+  const alamatUtama = alamat.filter((item) => item.is_utama)[0];
+  return alamatUtama;
+};
 
-export default function Home() {
+export default function Home({ dataWilayah, dataKategori }) {
   const [search, setSearch] = useState("");
   const [daerah, setDaerah] = useState("");
   const [jenis, setJenis] = useState("");
   const [urut, setUrut] = useState("");
 
+  const [katalog, setKatalog] = useState([]);
+
   useEffect(() => {
-    if (search == "") return;
-    const getData = setTimeout(() => {
-      console.log(search, daerah, jenis, urut);
+    const getData = async () => {
+      const { token } = await session();
+      const alamatCustomer = await getAlamat();
+
+      const params = new URLSearchParams({
+        search: "",
+        daerah: "",
+        bidang: "",
+        urut: "",
+        alamatCustomer: alamatCustomer,
+      }).toString();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/mitra/showKatalog?${params}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const { data } = await res.json();
+      setKatalog(data);
+    };
+
+    getData();
+  }, []);
+
+  useEffect(() => {
+    if (search != "" && daerah != "" && jenis != "" && urut != "") return;
+    const getData = setTimeout(async () => {
+      const { token } = await session();
+      const alamatCustomer = await getAlamat();
+      const params = new URLSearchParams({
+        search,
+        daerah,
+        bidang: jenis,
+        urut,
+        alamatCustomer: alamatCustomer,
+      }).toString();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/mitra/showKatalog?${params}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const { data } = await res.json();
+      setKatalog(data);
     }, 1000);
 
     // debounce
@@ -88,12 +119,12 @@ export default function Home() {
           <IconSearch className="absolute top-2 left-2 text-text" />
         </div>
         <div className="flex-1">
-          <Dropdown name="Daerah" items={DEFAULT_DAERAH} setItem={setDaerah} />
+          <Dropdown name="Daerah" items={dataWilayah} setItem={setDaerah} />
         </div>
         <div className="flex-1">
           <Dropdown
             name="Jenis/Bidang"
-            items={DEFAULT_JENIS}
+            items={dataKategori}
             setItem={setJenis}
           />
         </div>
@@ -107,7 +138,7 @@ export default function Home() {
       </section>
 
       {/* CATALOG */}
-      <CardList items={DEFAULT_CATALOG} />
+      <CardList items={katalog} />
     </>
   );
 }
@@ -158,42 +189,72 @@ const CardList = ({ items }) => {
 
 const Card = ({ item }) => {
   const route = useRouter();
-  const [ratio, setRatio] = useState(16 / 9);
+
+  const handleSaved = async () => {
+    const { token } = await session();
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/saved/add/${item.id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const { meta, data } = await res.json();
+
+    if (meta?.code === 200) {
+      MySwal.fire({
+        title: meta.message,
+        icon: "success",
+        confirmButtonText: "Ok",
+      });
+    } else {
+      MySwal.fire({
+        title: meta.message,
+        text: data,
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    }
+  };
 
   return (
-    <div
+    <Link
+      href={`/customer/detail-toko/${item.id}`}
       className="relative p-2 rounded-lg border border-text hover:cursor-pointer hover:shadow-xl transition-all"
-      onClick={() => route.push("/customer/detail-toko")}
+      // onClick={() => route.push(`/customer/${item.id}/detail-toko`)}
     >
-      <Image
-        src={item.image}
+      <img
+        src={item.gambar || "/assets/img/image-service.jpg"}
         alt="image-catalog"
-        width={300}
-        height={300 / ratio}
         loading="lazy"
-        className="object-cover"
-        onLoadingComplete={({ naturalWidth, naturalHeight }) =>
-          setRatio(naturalWidth / naturalHeight)
-        }
-        priority={false}
+        className="object-cover aspect-video"
+        // onLoadingComplete={({ naturalWidth, naturalHeight }) =>
+        //   setRatio(naturalWidth / naturalHeight)
+        // }
+        // priority={false}
       />
       <h3 className="font-semibold text-xl">{item.name}</h3>
       <p className="font-semibold text-base">
-        {toRupiah(item.harga_min)} - {toRupiah(item.harga_max)}
+        {toRupiah(item.minimal_price)} - {toRupiah(item.maximal_price)}
       </p>
 
       <p className="font-semibold text-text text-base">Bidang</p>
       <p className="font-medium text-text text-base">
-        {item.bidang.join(", ")}
+        {item.bidang.map((text) => text.nama_bidang).join(", ")}
       </p>
 
       <div className="flex">
         <GenerateStar rating={item.rating} />
       </div>
 
-      <button className="absolute right-2 bottom-2 bg-blueTransparant text-secondary rounded-full p-2">
+      <button
+        className="absolute right-2 bottom-2 bg-blueTransparant text-secondary rounded-full p-2"
+        onClick={handleSaved}
+      >
         <IconBookmark />
       </button>
-    </div>
+    </Link>
   );
 };

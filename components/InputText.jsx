@@ -1,13 +1,13 @@
 import React from "react";
 
 export default function InputText({
-  type,
+  type = "text",
   id,
   value,
   onChange,
   className,
-  required,
-  placeholder,
+  required = false,
+  placeholder = "",
   disable = false,
 }) {
   return (

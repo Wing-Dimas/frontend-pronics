@@ -2,10 +2,11 @@ import ButtonSecondary from "@/components/ButtonSecondary";
 import InputText from "@/components/InputText";
 import InputTextarea from "@/components/InputTextarea";
 import Select from "@/components/Select";
+import { session } from "@/utils/userAuth";
 import { RadioGroup } from "@headlessui/react";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const DEFAULT_ALAMAT = [
   "jln. Delima, Tanjung Barat, Jagakarsa, Jaksel 12560.",
@@ -20,11 +21,7 @@ export default function OrderForm(props) {
       {!ubahAlamat ? (
         <Order setUbahAlamat={setUbahAlamat} {...props} />
       ) : (
-        <UbahAlamatComponent
-          setUbahAlamat={setUbahAlamat}
-          updateFields={props.updateFields}
-          alamat={props.alamat}
-        />
+        <UbahAlamatComponent setUbahAlamat={setUbahAlamat} {...props} />
       )}
     </div>
   );
@@ -36,11 +33,59 @@ const Order = ({
   layanan,
   deskripsi,
   alamat,
+  mitra,
   updateFields,
+  order_id,
+  id,
+  next,
 }) => {
+  const [id_layanan, id_mitra] = id;
   const route = useRouter();
+  const [detailOrder, setDetailOrder] = useState(null);
+
+  useEffect(() => {
+    const getDetailOrder = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/layanan/detail/${id_layanan}`
+      );
+      const { data } = await res.json();
+
+      setDetailOrder(data);
+    };
+
+    getDetailOrder();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { token } = await session();
+    await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/orderDetail/createOrUpdate/${order_id}`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          bidang_id: detailOrder.bidang_id,
+          merk: merk,
+          layanan_id: id_layanan,
+          deskripsi_kerusakan: deskripsi,
+          alamat_pemesanan: alamat,
+        }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.meta.code) {
+          next();
+        }
+      });
+  };
+
   return (
-    <>
+    <form onSubmit={handleSubmit}>
       <section className="flex gap-10 h-max">
         <button
           className="flex justify-center items-center text-3xl w-8 h-8 hover:bg-slate-200 duration-1w-80 rounded-full"
@@ -48,13 +93,13 @@ const Order = ({
         >
           <IconArrowLeft />
         </button>
-        <h1 className="text-2xl font-medium">Order to Paryanto Service </h1>
+        <h1 className="text-2xl font-medium">Order to {mitra} </h1>
       </section>
 
       <section className="mx-16 mt-12">
         <p>
           <span className="text-text">Layanan yang dipilih : </span>
-          <b>Layanan 1</b>
+          <b>{detailOrder?.nama_layanan}</b>
         </p>
 
         <div className="grid gap-2 max-w-md mt-4">
@@ -66,7 +111,7 @@ const Order = ({
             required={true}
           />
         </div>
-        <div className="grid gap-2 max-w-md mt-4">
+        {/* <div className="grid gap-2 max-w-md mt-4">
           <label className="font-semibold">Jenis Pelayanan / Perbaikan</label>
           <Select
             value={layanan}
@@ -78,7 +123,7 @@ const Order = ({
             <option value="laptop">Services laptop</option>
             <option value="motor">Services motor</option>
           </Select>
-        </div>
+        </div> */}
         <div className="grid gap-2 max-w-md mt-4">
           <label className="font-semibold">Deskripsi Kerusakan</label>
           <InputTextarea
@@ -90,7 +135,7 @@ const Order = ({
       </section>
 
       <section className="flex justify-between mt-4 mx-16 items-center  ">
-        <p>Alamat anda : {alamat ? alamat : DEFAULT_ALAMAT[0]}</p>{" "}
+        <p>Alamat anda : {alamat}</p>{" "}
         <button
           className="text-secondary font-semibold"
           onClick={() => setUbahAlamat(true)}
@@ -102,18 +147,41 @@ const Order = ({
       <section className="mt-4 mx-16">
         <ButtonSecondary type="submit">Lanjutkan</ButtonSecondary>
       </section>
-    </>
+    </form>
   );
 };
 
 const UbahAlamatComponent = ({ setUbahAlamat, updateFields, alamat }) => {
-  const [plan, setPlan] = useState(alamat ? alamat : DEFAULT_ALAMAT[0]);
+  const [plan, setPlan] = useState(alamat);
+  const [daftarAlamat, setDaftarAlamat] = useState([]);
 
   const handleChange = (value) => {
     setPlan(value);
     setUbahAlamat(value);
     updateFields({ alamat: value });
   };
+
+  useEffect(() => {
+    const getAlamatUser = async () => {
+      const { token } = await session();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/alamat/all`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const { data } = await res.json();
+      const plan = data
+        .filter((item) => item.is_utama)
+        .map((item) => item.is_utama)[0];
+      setPlan(plan);
+      setDaftarAlamat(data);
+    };
+    getAlamatUser();
+  }, []);
 
   return (
     <>
@@ -132,15 +200,15 @@ const UbahAlamatComponent = ({ setUbahAlamat, updateFields, alamat }) => {
 
         <RadioGroup value={plan} onChange={handleChange}>
           <div className="p-2 bg-white border border-text rounded-lg max-w-xl">
-            {DEFAULT_ALAMAT.map((item, i) => (
+            {daftarAlamat.map((item) => (
               <RadioGroup.Option
-                value={item}
+                value={item.alamat}
                 className="border-b border-b-gray-300 last:border-none py-4"
-                key={i}
+                key={item.id}
               >
                 {({ checked }) => (
                   <div className="flex justify-between cursor-pointer">
-                    <span>{item}</span>{" "}
+                    <span>{item.alamat}</span>{" "}
                     {checked && (
                       <span className="font-semibold text-secondary">
                         Selected
@@ -153,7 +221,7 @@ const UbahAlamatComponent = ({ setUbahAlamat, updateFields, alamat }) => {
           </div>
         </RadioGroup>
 
-        <ButtonSecondary className="mt-4">Tambah Alamat Baru</ButtonSecondary>
+        {/* <ButtonSecondary className="mt-4">Tambah Alamat Baru</ButtonSecondary> */}
       </section>
     </>
   );

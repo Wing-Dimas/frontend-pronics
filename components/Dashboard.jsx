@@ -106,6 +106,31 @@ Dashboard.User = ({ children }) => {
 };
 
 Dashboard.HeaderFeature = ({ children }) => {
+  const route = useRouter();
+  const [user, setUser] = useState();
+  useEffect(() => {
+    const getUser = async () => {
+      const { user } = await session();
+      setUser(user);
+    };
+
+    getUser();
+  }, []);
+
+  const handleSetting = () => {
+    if (user) {
+      if (user.tipe === "customer") {
+        route.push("/customer/settings");
+      } else if (user.tipe === "mitra") {
+        route.push("/mitra/settings");
+      } else if (user.tipe === "admin") {
+        route.push("/admin/settings");
+      } else {
+        route.push("/auth/login");
+      }
+    }
+  };
+
   return (
     <div className="flex gap-8 border-r border-r-slate-200 pr-8">
       <div className="relative">
@@ -125,7 +150,10 @@ Dashboard.HeaderFeature = ({ children }) => {
         </span>
       </div>
       <div className="relative">
-        <button className="flex justify-center items-center w-12 h-12 rounded-lg bg-redTransparant text-red text-xl">
+        <button
+          className="flex justify-center items-center w-12 h-12 rounded-lg bg-redTransparant text-red text-xl"
+          onClick={handleSetting}
+        >
           <IconSettings />
         </button>
         <span className="total-notif absolute -top-2 -right-2 rounded-full bg-red border-2 border-white text-white">

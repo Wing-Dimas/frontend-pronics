@@ -1,12 +1,13 @@
 "use client";
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import userNoImage from "@/assets/user-no-image.png";
 import ButtonSecondary from "@/components/ButtonSecondary";
 import { IconBookmark, IconMessage } from "@tabler/icons-react";
 import { toRupiah } from "@/utils/convert";
 import GenerateStar from "@/utils/generate-star";
 import { useRouter } from "next/navigation";
+import { session } from "@/utils/userAuth";
 
 const DEFAULT_LAYANAN = [
   { name: "Layanan 1", harga: 50000 },
@@ -15,10 +16,30 @@ const DEFAULT_LAYANAN = [
   { name: "Layanan 4", harga: 50000 },
 ];
 
-export default function ComponentDetailCustomer() {
-  const [ratio, setRatio] = useState(16 / 9);
+export default function ComponentDetailCustomer({ id }) {
+  const [data, setData] = useState(null);
   const route = useRouter();
   const orderRef = useRef();
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/mitra/detail/${id}`,
+          {
+            method: "GET",
+          }
+        );
+
+        const { data } = await res.json();
+        setData(data);
+      } catch (err) {
+        setData(null);
+      }
+    };
+
+    getData();
+  }, []);
 
   function handleButtonToOrder(e, ref) {
     window.scrollTo({
@@ -28,56 +49,36 @@ export default function ComponentDetailCustomer() {
     });
   }
 
+  async function handleOrderLayanan(layanan_id) {
+    route.push(`/customer/order/${layanan_id}/${id}`);
+  }
+
   return (
     <div className="container mx-auto mt-4 pb-12">
       <section className="flex justify-center w-full">
-        <Image
-          src="/assets/img/image-service.jpg"
+        <img
+          src={data?.galeri_image[0] || "/assets/img/image-service.jpg"}
           alt="image-catalog"
           width={600}
-          height={600 / ratio}
           loading="lazy"
-          className="object-cover rounded-xl"
-          onLoadingComplete={({ naturalWidth, naturalHeight }) =>
-            setRatio(naturalWidth / naturalHeight)
-          }
-          priority={false}
+          className="object-cover aspect-video rounded-xl"
         />
       </section>
 
       <section className="flex justify-center flex-col items-center gap-6 mt-8 ">
-        <Image
-          src={userNoImage}
-          alt="image-catalog"
-          width={135}
-          height={135 / ratio}
+        <img
+          src={data?.foto_profil || userNoImage}
+          alt="image-profile"
           loading="lazy"
-          className="object-cover rounded-full"
-          onLoadingComplete={({ naturalWidth, naturalHeight }) =>
-            setRatio(naturalWidth / naturalHeight)
-          }
-          priority={false}
+          className="object-cover w-[135px] h-[135px] rounded-full"
         />
 
-        <h2 className="text-3xl font-semibold">Paryanto Service</h2>
+        <h2 className="text-3xl font-semibold">{data?.nama_toko}</h2>
       </section>
 
       <section className="mt-12 flex justify-between gap-8 flex-wrap sm:flex-nowrap">
         <div className="description text-text text-xl font-normal">
-          <p>
-            toko servis elektronik yang terkenal dan terpercaya di kota ini.
-            Sebagai salah satu penyedia layanan terbaik di industri elektronik,
-            Paryanto memiliki reputasi yang kuat dalam menawarkan solusi
-            perbaikan elektronik yang handal dan efisien.
-          </p>
-          <p>
-            Bidang utama Paryanto adalah perbaikan dan pemeliharaan berbagai
-            jenis perangkat elektronik, termasuk tetapi tidak terbatas pada
-            telepon genggam, komputer, laptop, televisi, peralatan audio dan
-            video, perangkat rumah tangga, dan banyak lagi. Mereka memiliki
-            pengetahuan yang mendalam tentang berbagai merek dan model, termasuk
-            perangkat dari produsen terkemuka.
-          </p>
+          <p>{data?.deskripsi}</p>
         </div>
         <div>
           <div className="flex gap-4 ">
@@ -97,10 +98,9 @@ export default function ComponentDetailCustomer() {
 
           <p className=" text-xl font-medium mt-4 ">Keahlian :</p>
           <ul className="list-disc text-text text-lg ml-8">
-            <li>Keahlian 1</li>
-            <li>Keahlian 2</li>
-            <li>Keahlian 3</li>
-            <li>Keahlian 4</li>
+            {data?.bidang.map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
           </ul>
         </div>
       </section>
@@ -109,18 +109,21 @@ export default function ComponentDetailCustomer() {
         <h3 className="text-xl font-medium">Daftar Layanan</h3>
 
         <div className="flex flex-col gap-5 mt-8">
-          {DEFAULT_LAYANAN.map((item, i) => (
+          {data?.layanan.map((item, i) => (
             <div
               className="flex justify-between items-center p-4 border border-slate-500"
               key={i}
             >
               <div className="flex flex-col justify-between gap-2">
-                <h4 className="text-lg font-medium">{item.name}</h4>
+                <h4 className="text-lg font-medium">{item.nama_layanan}</h4>
                 <p className="text-text text-base font-semibold">
                   {toRupiah(item.harga)}
                 </p>
               </div>
-              <ButtonSecondary onClick={() => route.push("/customer/order")}>
+              <ButtonSecondary
+                type="button"
+                onClick={() => handleOrderLayanan(item.id)}
+              >
                 Order
               </ButtonSecondary>
             </div>
