@@ -1,76 +1,220 @@
 import { toRupiah } from "@/utils/convert";
 import useNavigate from "@/utils/dashboard/useNavigate";
 import { IconArrowLeft } from "@tabler/icons-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Dropzone from "@/components/Dropzone";
 import ButtonSecondary from "@/components/ButtonSecondary";
+import { session } from "@/utils/userAuth";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
-const BankTransfer = () => {
+const MySwal = withReactContent(Swal);
+
+const BankTransfer = ({ order_payment_id, id_mitra, total_biaya }) => {
+  const [data, setData] = useState(null);
+  const [rekening, setRekening] = useState(null);
+  const [image, setImage] = useState(null);
+  const route = useRouter();
+
+  const controller = new AbortController();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { token } = await session();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/rekening/mitra/${id_mitra}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          signal: controller.signal,
+        }
+      );
+
+      const { data } = await res.json();
+      setRekening(data);
+    };
+
+    fetchData();
+
+    return () => controller.abort();
+  }, []);
+
+  const handleImage = (image) => {
+    setImage(image);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!image) return;
+
+    const { token } = await session();
+    const formData = new FormData();
+
+    formData.append("metode_pembayaran", "bank transfer");
+    formData.append("bukti_bayar", image);
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/orderPayment/confirmPayment/${order_payment_id}`,
+      {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const result = await res.json();
+    if (result?.meta?.code === 200) {
+      MySwal.fire({
+        title: result.meta.message,
+        icon: "success",
+        confirmButtonText: "Ok",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          return route.push("/customer/pembayaran/success");
+        }
+      });
+    } else {
+      MySwal.fire({
+        title: result.meta.message,
+        text: result.data,
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    }
+  };
+
   return (
-    <div>
-      <p className="flex justify-between w-96">
-        <span className="font-medium text-text">Nama Pemilik</span>
-        <span className="font-medium">Aurel</span>
-      </p>
-      <p className="flex justify-between w-96">
-        <span className="font-medium text-text">Nama Bank</span>
-        <span className="font-medium">BCA</span>
-      </p>
-      <p className="flex justify-between w-96">
-        <span className="font-medium text-text">Nomor Rekening</span>
-        <span className="font-medium">088129889123</span>
-      </p>
-      <p className="flex justify-between w-96 mb-4">
-        <span className="font-medium text-text">Total Bayar</span>
-        <span className="font-medium">{toRupiah(60500)}</span>
-      </p>
-      <Dropzone>Upload bukti Bayar</Dropzone>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <p className="flex justify-between w-96">
+          <span className="font-medium text-text">Nama Pemilik</span>
+          <span className="font-medium">{rekening?.nama_pemilik}</span>
+        </p>
+        <p className="flex justify-between w-96">
+          <span className="font-medium text-text">Nama Bank</span>
+          <span className="font-medium">{rekening?.bank.nama_bank}</span>
+        </p>
+        <p className="flex justify-between w-96">
+          <span className="font-medium text-text">Nomor Rekening</span>
+          <span className="font-medium">{rekening?.nomer_rekening}</span>
+        </p>
+        <p className="flex justify-between w-96 mb-4">
+          <span className="font-medium text-text">Total Bayar</span>
+          <span className="font-medium">{toRupiah(total_biaya)}</span>
+        </p>
+        <Dropzone handleImage={handleImage}>Upload bukti Bayar</Dropzone>
 
-      <div className="flex justify-end">
-        <ButtonSecondary type="submit">Selesai</ButtonSecondary>
+        <div className="flex justify-end">
+          <ButtonSecondary type="submit">Selesai</ButtonSecondary>
+        </div>
       </div>
-    </div>
+    </form>
   );
 };
 
 const BayarOtomatis = () => {
-  return <div>bayar ototmais</div>;
+  return <div>Comming Soon</div>;
 };
-const Cash = () => {
+const Cash = ({ order_payment_id, total_biaya }) => {
+  const route = useRouter();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const { token } = await session();
+    const formData = new FormData();
+
+    formData.append("metode_pembayaran", "cash");
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/orderPayment/confirmPayment/${order_payment_id}`,
+      {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const result = await res.json();
+    if (result?.meta?.code === 200) {
+      MySwal.fire({
+        title: result.meta.message,
+        icon: "success",
+        confirmButtonText: "Ok",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          return route.push("/customer/pembayaran/success");
+        }
+      });
+    } else {
+      MySwal.fire({
+        title: result.meta.message,
+        text: result.data,
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    }
+  };
   return (
-    <>
+    <form onSubmit={handleSubmit}>
       <p className="flex justify-between w-96">
         <span className="font-medium text-text">
           Total yang harus anda bayar
         </span>
-        <span className="font-medium">{toRupiah(60500)}</span>
+        <span className="font-medium">{toRupiah(total_biaya)}</span>
       </p>
 
       <p className="text-yellow-400">
         Anda bisa melihat pembayaran pada history
       </p>
-    </>
+
+      <div className="flex justify-end mt-8">
+        <ButtonSecondary type="submit">Selesai</ButtonSecondary>
+      </div>
+    </form>
   );
 };
 
-const pages = [
-  { name: "Bank Transfer", element: <BankTransfer /> },
-  {
-    name: "Bayar Otomatis",
-    element: <BayarOtomatis />,
-  },
-  {
-    name: "Cash",
-    element: <Cash />,
-  },
-];
-
 export default function MetodePembayaranForm({
+  order_payment_id,
   metodePembayaran,
   updateFields,
+  total_biaya,
   back,
+  id,
 }) {
+  const [id_layanan, id_mitra] = id;
+  const pages = [
+    {
+      name: "Bank Transfer",
+      element: (
+        <BankTransfer
+          order_payment_id={order_payment_id}
+          id_mitra={id_mitra}
+          total_biaya={total_biaya}
+        />
+      ),
+    },
+    {
+      name: "Bayar Otomatis",
+      element: <BayarOtomatis />,
+    },
+    {
+      name: "Cash",
+      element: (
+        <Cash order_payment_id={order_payment_id} total_biaya={total_biaya} />
+      ),
+    },
+  ];
+
   const { currentNavigate, page, toPage } = useNavigate(pages);
+
   return (
     <div className="container mx-auto mt-4 rounded-lg p-2 min-h-[calc(100vh_-_200px)] ">
       <section className="flex gap-10 h-max">

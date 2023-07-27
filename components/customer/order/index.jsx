@@ -17,6 +17,9 @@ const INITIAL_DATA = {
   alamat: "",
   mitra: "",
   order_id: "",
+  order_detail_id: "",
+  order_payment_id: "",
+  total_biaya: "",
   metodePembayaran: "",
   uploadMetodePembayaran: "",
 };
@@ -26,11 +29,12 @@ export default function OrderComponent({ id }) {
   const route = useRouter();
   const [data, setData] = useState(INITIAL_DATA);
   const [detailLaynanan, setDetailLaynanan] = useState(null);
+  const controller = new AbortController()
 
   const { step, isFirstStep, isLastStep, back, next } = useMultiStepForm([
     <OrderForm id={id} {...data} updateFields={updateFields} />,
     <PelayananForm id={id} {...data} updateFields={updateFields} />,
-    <MetodePembayaranForm {...data} updateFields={updateFields} />,
+    <MetodePembayaranForm id={id} {...data} updateFields={updateFields} />,
   ]);
 
   useEffect(() => {
@@ -44,6 +48,7 @@ export default function OrderComponent({ id }) {
             headers: {
               Authorization: `Bearer ${token}`,
             },
+            signal: controller.signal
           }
         );
 
@@ -55,7 +60,7 @@ export default function OrderComponent({ id }) {
             bidang: data?.order_detail.bidang.ID,
             layanan: data?.order_detail.layanan.id,
             deskripsi: data?.order_detail.deskripsi_kerusakan,
-            alamat: data?.customer.alamat,
+            alamat: data?.order_detail.alamat_pesanan,
             mitra: data?.mitra.nama_toko,
             order_id: data?.id,
           };
@@ -66,19 +71,14 @@ export default function OrderComponent({ id }) {
     };
 
     getTemporary();
+
+    return ()=>controller.abort()
   }, []);
 
   function updateFields(fields) {
     setData((prev) => {
       return { ...prev, ...fields };
     });
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!isLastStep) return next();
-    console.log(data);
-    route.push("/customer/pembayaran/success");
   }
 
   console.log(data);

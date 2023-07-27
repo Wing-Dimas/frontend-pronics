@@ -54,7 +54,7 @@ export default function Dropzone({
             </>
           ) : (
             <>
-              {image.map((upFile) => (
+              {image.map((upFile, i) => (
                 <Image
                   src={upFile.preview}
                   width={433}
@@ -63,6 +63,7 @@ export default function Dropzone({
                   onLoad={() => {
                     URL.revokeObjectURL(upFile.preview);
                   }}
+                  key={i}
                 />
               ))}
             </>

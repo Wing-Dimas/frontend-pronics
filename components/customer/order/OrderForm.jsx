@@ -44,9 +44,39 @@ const Order = ({
   const [detailOrder, setDetailOrder] = useState(null);
 
   useEffect(() => {
+    if (alamat !== "") return;
+    const controller = new AbortController();
+    const getAlamatUser = async () => {
+      const { token } = await session();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/alamat/all`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          signal: controller.signal,
+        }
+      );
+      const { data } = await res.json();
+      const plan = data
+        .filter((item) => item.is_utama)
+        .map((item) => item.alamat)[0];
+      updateFields({ alamat: plan });
+    };
+    getAlamatUser();
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
     const getDetailOrder = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/layanan/detail/${id_layanan}`
+        `${process.env.NEXT_PUBLIC_BACKEND}/api/v1/layanan/detail/${id_layanan}`,
+        {
+          signal: controller.signal,
+        }
       );
       const { data } = await res.json();
 
@@ -54,6 +84,8 @@ const Order = ({
     };
 
     getDetailOrder();
+
+    return () => controller.abort();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -79,6 +111,7 @@ const Order = ({
       .then((res) => res.json())
       .then((res) => {
         if (res.meta.code) {
+          updateFields({ order_detail_id: res.data.order_detail.id });
           next();
         }
       });
@@ -176,9 +209,10 @@ const UbahAlamatComponent = ({ setUbahAlamat, updateFields, alamat }) => {
       const { data } = await res.json();
       const plan = data
         .filter((item) => item.is_utama)
-        .map((item) => item.is_utama)[0];
-      setPlan(plan);
+        .map((item) => item.alamat)[0];
       setDaftarAlamat(data);
+      if (alamat) return;
+      setPlan(plan);
     };
     getAlamatUser();
   }, []);
@@ -199,15 +233,15 @@ const UbahAlamatComponent = ({ setUbahAlamat, updateFields, alamat }) => {
         <h2 className="font-semibold mb-8">Daftar Alamat</h2>
 
         <RadioGroup value={plan} onChange={handleChange}>
-          <div className="p-2 bg-white border border-text rounded-lg max-w-xl">
+          <div className="bg-white border border-text rounded-lg max-w-xl">
             {daftarAlamat.map((item) => (
               <RadioGroup.Option
                 value={item.alamat}
-                className="border-b border-b-gray-300 last:border-none py-4"
+                className="border-b border-b-gray-300 last:border-none "
                 key={item.id}
               >
                 {({ checked }) => (
-                  <div className="flex justify-between cursor-pointer">
+                  <div className="flex justify-between cursor-pointer py-4 p-2">
                     <span>{item.alamat}</span>{" "}
                     {checked && (
                       <span className="font-semibold text-secondary">
